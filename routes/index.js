@@ -1,6 +1,5 @@
 var express = require('express');
 var router = express.Router();
-
 var multer = require('multer');
 var storage = multer.diskStorage({
     destination: (req, file, cb)=>{
@@ -16,6 +15,7 @@ var Product = require('../models/product');
 var User = require('../models/user');
 var Cart = require('../models/cart');
 
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   Product.find((err, docs)=>{
@@ -24,7 +24,7 @@ router.get('/', function(req, res, next) {
     for(var i=0;i<docs.length;i += chunksize){
       productChunks.push(docs.slice(i, i+chunksize));
     }
-    res.render('shop/index', { title: 'Ekart', products: productChunks });
+    res.render('shop/index', { title: 'Velenza ceramic', products: productChunks });
   }); 
 });
 
@@ -45,7 +45,7 @@ router.get('/search', (req, res, next)=>{
         productChunks.push(docs.slice(i, i+chunksize));
       }
       
-      res.render('shop/index', {title: 'Ekart', products: productChunks, errors: msg });
+      res.render('shop/index', {title: 'Velenza ceramic', products: productChunks, errors: msg });
     });
   }else{
     res.redirect('/');
@@ -54,6 +54,7 @@ router.get('/search', (req, res, next)=>{
 
 //add-to-cart route
 router.get('/add-to-cart/:id', (req, res, next)=>{
+  console.log(req.session);
   var productId = req.params.id;
   var cart = new Cart(req.session.cart ? req.session.cart : {items: {}});
 
@@ -64,7 +65,6 @@ router.get('/add-to-cart/:id', (req, res, next)=>{
     }
     cart.add(product, product.id);
     req.session.cart = cart;
-    console.log(req.session.cart);
     res.redirect('/');
   });
 });
@@ -79,13 +79,15 @@ router.get('/shopping-cart', (req,res,next)=>{
 });
 
 //checkout
-router.get('/checkout', (req, res, next)=>{
-  if(!req.session.cart){
-    return res.redirect('/shopping-cart');
-  }
-  var cart = new Cart(req.session.cart);
-  res.render('shop/checkout', {total: cart.totalPrice});
-});
+// router.get('/checkout', (req, res, next)=>{
+//   if(!req.session.cart){
+//     return res.redirect('/shopping-cart');
+//   }
+//   var cart = new Cart(req.session.cart);
+//   res.render('shop/checkout', {total: cart.totalPrice});
+// });
+
+
 
 //regex function for fuzzy searching
 function escapeRegex(text) {

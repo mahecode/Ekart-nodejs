@@ -20,20 +20,24 @@ var ObjectID = require('mongodb').ObjectID;
 var Admin = require('../models/admin');
 var Product = require('../models/product');
 var User = require('../models/user');
+var CustomProduct = require('../models/customProduct');
 
 router.post('/add-product',isloggedIn, upload.single('imagePath'), (req, res, next)=>{
-    console.log(req.file);
-    const product = new Product({
-        title: req.body.title,
-        description: req.body.description,
-        price: req.body.price,
-        imagePath: req.file.path
-    });
-    product.save().then((doc)=>{
-        console.log('Product added');
-    }, (e)=>{
-        console.log(e);
-    });
+    try {
+        const product = new Product({
+            title: req.body.title,
+            description: req.body.description,
+            price: req.body.price,
+            imagePath: req.file.path
+        });
+        product.save().then((doc)=>{
+            console.log('Product added');
+        }, (e)=>{
+            console.log(e);
+        });
+        res.render('shop/add-product', {token: req.csrfToken(),message : 'Product added!'})
+    } catch (error) {
+    }
     res.redirect('/');
 });
 
@@ -77,12 +81,25 @@ router.get('/manage-product', isloggedIn,  (req, res, next)=>{
     })  
 });
 
+//GET request for manage custom product 
+
+router.get('/manage-custom-product', isloggedIn,(req, res, next)=>{
+    CustomProduct.find((err,doc)=>{
+        if(err){
+            res.render('user/profile',{message: 'Some error occurred'});
+        }
+        res.render('shop/manage-custom-product',{title: 'Ekart',products: doc, empty: doc.length === 0 ? 'Nothing to show': null});
+    })
+})
+
+//GET request for manage users
 router.get('/manage-users',isloggedIn, (req, res, next)=>{
     User.find((err, user)=>{
         res.render('shop/manage-user', {user: user});
     })
 });
 
+//GET request for edit 
 router.get('/edit/:id', isloggedIn,  (req, res, next)=>{
     const q = {_id: req.params.id}
     Product.findById(q, (err, doc)=>{
@@ -97,6 +114,7 @@ router.get('/edit/:id', isloggedIn,  (req, res, next)=>{
     });
 });
 
+//remove product
 router.get('/delete/:id', isloggedIn, (req, res, next)=>{
     const query = {_id: req.params.id}
     if(!ObjectID.isValid(req.params.id)){
@@ -112,6 +130,26 @@ router.get('/delete/:id', isloggedIn, (req, res, next)=>{
       res.status(400).send();
     });
 });
+
+//GET request for removing custom product
+
+router.get('/delete/custom/:id', isloggedIn, (req, res, next)=>{
+    const query = {_id: req.params.id}
+    if(!ObjectID.isValid(req.params.id)){
+      return res.render('error', {message: "Error didn't found the given id"});
+    }
+    CustomProduct.findOneAndRemove({_id: query}).then((product)=>{
+      if(!product){
+        return res.status(400).send();
+      }
+      console.log('Product removed');
+      res.redirect('/admin/manage-custom-product');
+    }).catch((e)=>{
+      res.status(400).send();
+    });
+});
+
+
 
 
 
