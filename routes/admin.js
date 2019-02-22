@@ -22,6 +22,8 @@ var Product = require('../models/product');
 var User = require('../models/user');
 var CustomProduct = require('../models/customProduct');
 
+//POST request for ADD PRODUCT
+
 router.post('/add-product',isloggedIn, upload.single('imagePath'), (req, res, next)=>{
     try {
         const product = new Product({
@@ -41,6 +43,8 @@ router.post('/add-product',isloggedIn, upload.single('imagePath'), (req, res, ne
     res.redirect('/');
 });
 
+//POST request for EDITTING 
+
 router.post('/edit/:id',upload.single('imagePath'),  isloggedIn, (req, res, next) =>{
     const query = {_id : req.params.id}
     Product.findOne(query, (err, doc) =>{
@@ -50,7 +54,7 @@ router.post('/edit/:id',upload.single('imagePath'),  isloggedIn, (req, res, next
       doc.title = req.body.title;
       doc.description = req.body.description;
       doc.price = req.body.price;
-      doc.imagePath = req.file.path
+      doc.imagePath = req.file.path 
       doc.save();
       console.log('Product updated...');
       res.redirect('/admin/manage-product');
@@ -59,11 +63,14 @@ router.post('/edit/:id',upload.single('imagePath'),  isloggedIn, (req, res, next
 
 router.use(csrfProtection);
 
+//GET request for admin login
+
 router.get('/admin-login', (req, res, next)=>{
     var messages = req.flash('error');
     res.render('user/admin', {token: req.csrfToken(), messages: messages, hasErrors: messages.length >0});
 });
 
+//POST request for admin login
 
 router.post('/admin-login', passport.authenticate('local.admin',{
     successRedirect: '/user/profile',
@@ -71,9 +78,21 @@ router.post('/admin-login', passport.authenticate('local.admin',{
     failureFlash: true
 }));
 
+//POST request for admin register
+
+router.post('/create-admin', passport.authenticate('local.adminSignup', {
+    successRedirect: '/user/Profile',
+    failureRedirect: '/admin/create-admin',
+    failureFlash: true
+}))
+
+//GET request for add product
+
 router.get('/add-product', isloggedIn,  (req, res, next)=>{
     res.render('shop/add-product', {token: req.csrfToken()});
 });
+
+//GET request for manage product
 
 router.get('/manage-product', isloggedIn,  (req, res, next)=>{
     Product.find((err, docs)=>{
@@ -93,6 +112,7 @@ router.get('/manage-custom-product', isloggedIn,(req, res, next)=>{
 })
 
 //GET request for manage users
+
 router.get('/manage-users',isloggedIn, (req, res, next)=>{
     User.find((err, user)=>{
         res.render('shop/manage-user', {user: user});
@@ -100,6 +120,7 @@ router.get('/manage-users',isloggedIn, (req, res, next)=>{
 });
 
 //GET request for edit 
+
 router.get('/edit/:id', isloggedIn,  (req, res, next)=>{
     const q = {_id: req.params.id}
     Product.findById(q, (err, doc)=>{
@@ -114,7 +135,8 @@ router.get('/edit/:id', isloggedIn,  (req, res, next)=>{
     });
 });
 
-//remove product
+//GET request for remove product
+
 router.get('/delete/:id', isloggedIn, (req, res, next)=>{
     const query = {_id: req.params.id}
     if(!ObjectID.isValid(req.params.id)){
@@ -130,6 +152,7 @@ router.get('/delete/:id', isloggedIn, (req, res, next)=>{
       res.status(400).send();
     });
 });
+
 
 //GET request for removing custom product
 
@@ -153,7 +176,8 @@ router.get('/delete/custom/:id', isloggedIn, (req, res, next)=>{
 
 
 
-//deleting users route
+//GET request for Deleting users
+
 router.get('/delete/user/:id', isloggedIn, (req, res, next)=>{
     const query = {_id: req.params.id}
     if(!ObjectID.isValid(req.params.id)){
@@ -169,6 +193,15 @@ router.get('/delete/user/:id', isloggedIn, (req, res, next)=>{
       res.status(400).send();
     });
 });
+
+//GET request for new admin
+
+router.get('/create-admin',(req, res, next)=>{
+    res.render('user/admin-signup', {token: req.csrfToken()});
+})
+
+
+//Is logged in function
 
 function isloggedIn(req, res, next){
         if(req.isAuthenticated() && req.user.isAdmin === true){

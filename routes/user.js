@@ -122,6 +122,8 @@ router.get('/signup', (req, res, next)=>{
     failureFlash: true
   }));
 
+ 
+
   function isloggedIn(req, res, next){
       if(req.isAuthenticated()){
         return next();

@@ -119,3 +119,43 @@ passport.use('local.admin', new localStrategy({
         return done(null,user);
     });
 }));
+
+
+//Sign up for admin
+
+passport.use('local.adminSignup', new localStrategy({
+    usernameField: 'email',
+    passwordField: 'password',
+    passReqToCallback: true
+}, (req, email, password, done)=>{
+    req.checkBody('email', 'Invalid email').notEmpty().isEmail();
+    req.checkBody('password', 'password must contain atleast 4 characters').notEmpty().isLength({min:4 });
+    var errors = req.validationErrors();
+    if(errors){
+        var messages = [];
+        errors.forEach(function(error){
+            messages.push(error.msg);
+        });
+        return done(null, false, req.flash('error', messages));
+    }
+    Admin.findOne({'email': email}, (err, user)=>{
+        if(err){
+            return done(err);
+        }
+        if(user){
+            return done(null, false, {message: 'Admin already exist'});
+        }
+        var newAdmin = new Admin();
+        newAdmin.name = req.body.name;
+        newAdmin.email = email;
+        newAdmin.password = newAdmin.encryptPassword(password);
+    
+        newAdmin.save((err, result)=>{
+            if(err){
+                return done(err);
+            }
+            return done(null, newAdmin);
+        });
+    });
+}
+));

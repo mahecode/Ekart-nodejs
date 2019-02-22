@@ -10,7 +10,6 @@ var storage = multer.diskStorage({
     }
 })
 var upload = multer({storage});
-
 var Product = require('../models/product');
 var User = require('../models/user');
 var Cart = require('../models/cart');
@@ -54,7 +53,6 @@ router.get('/search', (req, res, next)=>{
 
 //add-to-cart route
 router.get('/add-to-cart/:id', (req, res, next)=>{
-  console.log(req.session);
   var productId = req.params.id;
   var cart = new Cart(req.session.cart ? req.session.cart : {items: {}});
 
@@ -71,22 +69,43 @@ router.get('/add-to-cart/:id', (req, res, next)=>{
 
 //shopping cart route
 router.get('/shopping-cart', (req,res,next)=>{
-  if(!req.session.cart){
-    res.render('shop/shopping-cart', {products: null});
+  try {
+    if(!req.session.cart){
+     return res.render('shop/shopping-cart', {products: null});
+    }
+    var cart = new Cart(req.session.cart);
+    res.render('shop/shopping-cart',{products: cart.generateArray(),totalPrice: cart.totalPrice});
+  } catch (error) {
+   console.log(error);
   }
-  var cart = new Cart(req.session.cart);
-  res.render('shop/shopping-cart',{products: cart.generateArray(),totalPrice: cart.totalPrice});
 });
 
-//checkout
-// router.get('/checkout', (req, res, next)=>{
-//   if(!req.session.cart){
-//     return res.redirect('/shopping-cart');
-//   }
-//   var cart = new Cart(req.session.cart);
-//   res.render('shop/checkout', {total: cart.totalPrice});
-// });
 
+// remove one from cart
+
+router.get('/remove-one-cart/:id', (req, res,next)=>{
+  try {
+    var productId = req.params.id;
+    var cart = new Cart(req.session.cart ? req.session.cart : {items: {}});
+  
+    Product.findById(productId, (err, product)=>{
+      if(err){
+        console.log(err);
+        return res.redirect('/');
+      }
+      cart.pop(product, product.id);
+      req.session.cart = cart;
+      res.render('shop/shopping-cart', {products: cart.generateArray(),totalPrice: cart.totalPrice});
+    });
+  } catch (error) {
+    return res.render('shop/shopping-cart')
+  }
+})
+
+//GET request for CALCULATOR
+router.get('/calculator', (req, res, next)=>{
+  res.render('shop/calculator');
+});
 
 
 //regex function for fuzzy searching
