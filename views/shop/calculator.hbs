@@ -1,4 +1,5 @@
  <script>
+     let price = 0;
      function calculator(){
       let Wastage = (5/100);
       const lengthOfRoom = document.getElementById('lr').value;
@@ -12,18 +13,47 @@
       
       const totalAreaLaid = totalRoomArea + skirtingTileArea;
 
-      const tileBreadth = document.getElementById('tb').value;
-      const tileWidth = document.getElementById('tw').value;
 
-      const areaOfTile = tileBreadth*tileWidth;
+      let areaOfTile = getTileArea();
+
       const result1 = (totalAreaLaid/areaOfTile)*Wastage
       const result = (totalAreaLaid/areaOfTile) + result1;
-      const tileCost =  document.getElementById('tc').value;
+      const tileCost =  price;
 
       document.getElementById('result').innerHTML ='Approximately ' + result.toFixed(0) + ' number of tiles required' + 'and Cost of tiles are ₹' + result.toFixed(0)*tileCost;
       let element = document.getElementById('result');
       element.classList.add('alert');
       element.classList.add('alert-success');
+     }
+
+     function getTileArea(){
+        let tile = document.getElementById('tile').value;
+        let areaTile =0;
+        let element = document.getElementById('price');
+        element.classList.add('alert');
+        element.classList.add('alert-warning');
+        if(tile === "tile1"){
+            areaTile = 1;
+            price = 20
+            document.getElementById('price').innerHTML =  "Rate of per tile is20 " + price;
+        }
+        if(tile === "tile2"){
+            areaTile = 4;
+            price = 40
+            document.getElementById('price').innerHTML =  "Rate of per tile is " + price;
+        }
+        if(tile === "tile3"){
+            areaTile = 9;
+            price = 60
+            document.getElementById('price').innerHTML =  "Rate of per tile is " + price;
+
+        }
+        if(tile === "tile4"){
+            areaTile = 16;
+            price = 80
+            document.getElementById('price').innerHTML =  "Rate of per tile is " + price;
+        }
+        return areaTile;
      }
     </script>
 <div class="row">
@@ -42,21 +72,26 @@
                 <input type="text" id="sh" name="length" class="form-control" placeholder="Height of skirting Tile" required>
             </div>
              <div class="form-group">
-                <label for="name">Tile Breadth  (mtrs )</label>
-                <input type="text" id="tb" name="length" class="form-control" placeholder="breadth of tile" required>
+                <label for="tile">Select Tile:</label>
+                <select onchange="getTileArea()" class="form-control" id="tile">
+                    <option value="tile1">Tile 1 (1x1)</option>
+                    <option value="tile2">Tile 2 (2x2)</option>
+                    <option value="tile3">Tile 3 (3x3)</option>
+                    <option value="tile4">Tile 4 (4x4)</option>
+                </select>
             </div>
-             <div class="form-group">
-                <label for="name">Tile Width  (mtrs )</label>
-                <input type="text" id="tw" name="length" class="form-control" placeholder="width of tile" required>
+            <div class="form-group">
+                <div id="price"></div>
             </div>
-             <div class="form-group">
+             {{!-- <div class="form-group">
                 <label for="name">Each Tile Cost  (mtrs ) </label>
                 <input type="text" id="tc" name="length" class="form-control" placeholder="cost of per tile" required>
-            </div>
+            </div> --}}
+           
             <button class="btn btn-primary" onclick="calculator()" type="submit">Calculate</button>
             <br><br>
             <div class="container">
-            <div id="result"></div>
+                <div id="result"></div>
             </div>
         </div>
     </div>

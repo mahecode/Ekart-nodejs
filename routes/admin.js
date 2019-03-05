@@ -84,7 +84,7 @@ router.post('/create-admin', passport.authenticate('local.adminSignup', {
     successRedirect: '/user/Profile',
     failureRedirect: '/admin/create-admin',
     failureFlash: true
-}))
+}));
 
 //GET request for add product
 
@@ -171,7 +171,6 @@ router.get('/delete/custom/:id', isloggedIn, (req, res, next)=>{
       res.status(400).send();
     });
 });
-
 
 
 
