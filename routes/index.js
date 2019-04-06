@@ -27,6 +27,11 @@ router.get('/', function(req, res, next) {
   }); 
 });
 
+//Ar test route
+router.get('/artest', (req, res, next)=>{
+  res.render('shop/Artest');
+})
+
 //search box
 router.get('/search', (req, res, next)=>{
   if(req.query.search){
